@@ -1,0 +1,25 @@
+{
+  "name": "ciid-mexico",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MONITOR CIID · Centro Inteligente de Información Digital",
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "Estefanía Pérez Vázquez",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint . --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build": "tsc",
+    "ci": "npm run lint && npm run typecheck && npm run test && npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  }
+}
