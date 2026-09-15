@@ -1,0 +1,16 @@
+name: Security report
+description: Reporta una vulnerabilidad de forma privada
+title: '[SECURITY] '
+labels: ['security']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        NO incluyas detalles explotables en este formulario publico.
+        Envia los detalles a estefaniaprzvzqz@outlook.com
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: Descripcion general
+    validations:
+      required: true

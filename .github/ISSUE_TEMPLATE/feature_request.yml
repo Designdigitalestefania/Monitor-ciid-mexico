@@ -1,0 +1,17 @@
+name: Feature request
+description: Propon una nueva funcionalidad
+title: '[FEATURE] '
+labels: ['enhancement']
+body:
+  - type: textarea
+    id: problema
+    attributes:
+      label: Problema a resolver
+    validations:
+      required: true
+  - type: textarea
+    id: propuesta
+    attributes:
+      label: Solucion propuesta
+    validations:
+      required: true
