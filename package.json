@@ -15,7 +15,7 @@
     "ci": "npm run lint && npm run typecheck && npm run test && npm run build"
   },
   "devDependencies": {
-    "@types/node": "^20.11.0",
+    "@types/node": "^26.5.1",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "@typescript-eslint/parser": "^6.19.0",
     "eslint": "^8.56.0",
