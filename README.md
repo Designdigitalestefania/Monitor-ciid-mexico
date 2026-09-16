@@ -1,99 +1,119 @@
 <div align="center">
 
+<img src="./assets/logo-ciid.svg" alt="MONITOR CIID" width="320">
+
 # MONITOR CIID
 
-**Centro Inteligente de Información Digital**
-
-### Modelo de innovación tecnológica para la información
+**Centro Inteligente de Informacion Digital**
 
 <p>
-  <img src="https://img.shields.io/badge/status-fundacional-blue?style=for-the-badge" alt="Estado">
-  <img src="https://img.shields.io/badge/version-v0.1.0-green?style=for-the-badge" alt="Versión">
-  <img src="https://img.shields.io/badge/license-proprietary-red?style=for-the-badge" alt="Licencia">
+  <img src="https://img.shields.io/badge/version-v0.5.0-blue?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/tests-99_passing-success?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/license-Proprietary-red?style=for-the-badge" alt="License">
+  <img src="https://img.shields.io/badge/deploy-Netlify-00C7B7?style=for-the-badge" alt="Deploy">
 </p>
 
-<p><em>"La tecnología asiste. El periodista decide."</em></p>
-<p><em>"Innovar para informar. Digitalizar para preservar."</em></p>
-<p><strong>De Oaxaca para el mundo.</strong></p>
+<p><em>"La tecnologia asiste. El periodista decide."</em></p>
 
 </div>
 
 ---
 
-## Overview
+## Estado del proyecto
 
-MONITOR CIID es una infraestructura periodística de nueva generación. Transforma
-los procesos mediante los cuales los medios reciben, procesan, analizan,
-verifican, preservan y distribuyen información.
+**Piloto tecnico fundacional completado.**
 
-Su diferencial clave es la **preservación del patrimonio cultural y lingüístico**
-de las comunidades originarias, con validación por hablantes nativos y
-consentimiento informado.
+| Aspecto | Estado |
+|---------|--------|
+| Version | v0.5.0 |
+| Modulos funcionales | 5 |
+| Tests automatizados | 99 |
+| Estado del CI | Verde |
 
-## Principios
+## Concepto
 
-1. **Decisión humana final.** Ninguna publicación se automatiza.
-2. **Verificación obligatoria.** Ningún reporte ciudadano se publica sin contraste.
-3. **Preservación por diseño.** El archivo patrimonial es parte del ciclo, no un extra.
-4. **Multi-tenancy desde el día uno.** Cada organización es un espacio aislado.
-5. **Trazabilidad total.** Cada decisión deja registro auditable.
+**MONITOR CIID** es una infraestructura periodistica de nueva generacion
+que asiste al periodista en el procesamiento, verificacion, distribucion
+y preservacion de informacion, con preservacion del patrimonio cultural
+y linguistico de las comunidades de Oaxaca.
 
-## Arquitectura
+> **"El objetivo no es publicar mas rapido. El objetivo es publicar mejor."**
 
-Consulta [ARCHITECTURE.md](./ARCHITECTURE.md) para el pipeline completo, la
-jerarquía territorial y el modelo multi-tenant.
+## Modulos del sistema
 
-## Pipeline
+| Modulo | Responsabilidad | Tests |
+|--------|----------------|-------|
+| domain | Entidades y reglas puras | 33 |
+| tenants | Multi-tenancy con aislamiento | 13 |
+| ingest | Puerta de entrada al pipeline | 9 |
+| pipeline | Maquina de estados | 17 |
+| preservation | Archivo patrimonial | 10 |
+| Integracion | Flujo completo | 15 |
+| Seguridad | Aislamiento entre tenants | 2 |
+| **Total** | | **99** |
 
-```
+## Reglas duras implementadas
 
-INGESTA → NORMALIZACIÓN → CLASIFICACIÓN → ASISTENCIA EDITORIAL
-→ VERIFICACIÓN → VALIDACIÓN LINGÜÍSTICA → DECISIÓN HUMANA
-→ DISTRIBUCIÓN → PRESERVACIÓN → MÉTRICAS
+1. **Aislamiento estricto entre tenants.** Ningun dato cruza fronteras.
+2. **No se saltan etapas.** El pipeline es lineal.
+3. **DECISION requiere actor humano.** Periodista o editor.
+4. **No hay publicacion automatica.** La tecnologia asiste, no decide.
+5. **Trazabilidad completa.** Cada transicion con actor, rol, timestamp y razon.
+6. **Preservacion inmutable.** Un expediente preservado no se modifica.
+7. **Lenguas originarias conservan su variante.** No se homogenizan.
 
-```
+## Instalacion
 
-## Seguridad
-
-Consulta [SECURITY.md](./SECURITY.md). Reportes privados a **estefaniaprzvzqz@outlook.com**.
-
-## Desarrollo
-
-```bash
+git clone https://github.com/Designdigitalestefania/Monitor-ciid-mexico.git
+cd Monitor-ciid-mexico
 npm install
-npm run lint
-npm run typecheck
 npm run test
-npm run build
-```
+npm run ci
 
-Testing
+## Scripts disponibles
 
-· tests/unit/ — Pruebas unitarias de lógica de dominio.
-· tests/integration/ — Pruebas de integración entre módulos.
-· tests/e2e/ — Pruebas de extremo a extremo.
-· tests/security/ — Pruebas de reglas de acceso y aislamiento de tenant.
+| Script | Descripcion |
+|--------|-------------|
+| npm run lint | ESLint sobre TypeScript |
+| npm run typecheck | Verificacion de tipos |
+| npm run test | Ejecucion de los 99 tests |
+| npm run build | Compilacion a dist/ |
+| npm run ci | Pipeline completo |
 
-Gobernanza
+## Documentacion
 
-Consulta GOVERNANCE.md.
+| Documento | Contenido |
+|-----------|-----------|
+| ARCHITECTURE.md | Arquitectura del sistema |
+| GOVERNANCE.md | Gobernanza del proyecto |
+| SECURITY.md | Politica de seguridad |
+| CONTRIBUTING.md | Guia de contribucion |
+| docs/ROADMAP.md | Plan de desarrollo |
+| docs/decisions/ | Architecture Decision Records |
+| docs/bitacora/ | Bitacora del proyecto |
 
-Roadmap
+## Demo publica
 
-Consulta docs/ROADMAP.md.
+Pipeline visual: https://monitorciid.netlify.app/?demo=2
 
-Decisiones arquitectónicas
+## Releases
 
-Consulta docs/decisions/.
+- v0.5.0 · Piloto tecnico fundacional
 
-Licencia
+## Autoria
 
-Propietaria. Todos los derechos reservados. Ver LICENSE.
+**Estefania Perez Vazquez** - Creadora y directora del proyecto
+Estrategia e Innovacion Digital - Arquitectura de Proyectos Tecnologicos
+
+Proyectos creados por la misma autora:
+- MONITOR CIID - Centro Inteligente de Informacion Digital
+- IXIMI LEGACY - Tecnologia para preservar cultura
+
+## Licencia
+
+Propietaria. Todos los derechos reservados.
 
 ---
 
-<div align="center">
-
-<em>Hecho con 💙 en Oaxaca, México.</em>
-
-</div>
+<em>Innovar para informar. Digitalizar para preservar.</em>
+Hecho con cuidado en Oaxaca, Mexico.
