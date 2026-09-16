@@ -17,3 +17,4 @@ export const ciid: CiidInfo = {
 export * from "./domain/index.js";
 export * from "./modules/tenants/index.js";
 export * from "./modules/ingest/index.js";
+export * from "./modules/pipeline/index.js";
