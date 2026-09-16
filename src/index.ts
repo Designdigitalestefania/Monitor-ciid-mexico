@@ -20,3 +20,4 @@ export * from "./modules/ingest/index.js";
 export * from "./modules/pipeline/index.js";
 export * from "./modules/preservation/index.js";
 export * from "./modules/citizen/index.js";
+export * from "./modules/linguistic/index.js";
