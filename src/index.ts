@@ -15,3 +15,4 @@ export const ciid: CiidInfo = {
 };
 
 export * from "./domain/index.js";
+export * from "./modules/tenants/index.js";
