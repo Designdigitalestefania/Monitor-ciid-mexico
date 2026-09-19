@@ -1,5 +1,6 @@
 import { crearTenant, type Tenant } from "../../domain/tenant.js";
-import { TenantRepository } from "./repository.js";
+import { type Repository } from "../../persistence/types.js";
+import { InMemoryRepository } from "../../persistence/in-memory.js";
 import { puedeOperar, puedeRecibirParticipacion } from "./rules.js";
 import {
   type CrearTenantInput,
@@ -10,11 +11,13 @@ import {
 /**
  * Servicio de tenants.
  *
- * Interfaz publica del modulo. Toda operacion de negocio pasa por aqui.
+ * Interfaz publica del modulo. Consume la interfaz generica
+ * Repository<Tenant>, que puede ser en memoria o SQLite sin
+ * cambiar la logica de negocio.
  */
 export class TenantsService {
   constructor(
-    private readonly repo: TenantRepository = new TenantRepository()
+    private readonly repo: Repository<Tenant> = new InMemoryRepository<Tenant>()
   ) {}
 
   crear(input: CrearTenantInput): Tenant {
