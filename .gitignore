@@ -37,3 +37,12 @@ Thumbs.db
 # Archivos temporales
 *.tmp
 *.bak
+
+# Base de datos local
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+data/
