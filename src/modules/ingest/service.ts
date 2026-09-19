@@ -5,7 +5,8 @@ import {
 } from "../../domain/expediente.js";
 import { crearActor, registrarActor } from "../../domain/actor.js";
 import { type Tenant } from "../../domain/tenant.js";
-import { IngestRepository } from "./repository.js";
+import { type Repository } from "../../persistence/types.js";
+import { InMemoryRepository } from "../../persistence/in-memory.js";
 import {
   validarId,
   validarTenantParaOrigen,
@@ -22,21 +23,15 @@ import {
  *
  * Puerta de entrada del pipeline CIID. Convierte informacion entrante
  * en un expediente en estado RECEIVED, con trazabilidad completa.
+ *
+ * Consume Repository<Expediente>: la persistencia (memoria o SQLite)
+ * se inyecta en la construccion sin cambiar esta logica.
  */
 export class IngestService {
   constructor(
-    private readonly repo: IngestRepository = new IngestRepository()
+    private readonly repo: Repository<Expediente> = new InMemoryRepository<Expediente>()
   ) {}
 
-  /**
-   * Recibe informacion y crea un expediente en RECEIVED.
-   *
-   * Validaciones:
-   *   - El id debe tener formato CIID-YYYY-NNNN.
-   *   - No debe existir otro expediente con el mismo id.
-   *   - El tenant debe existir, estar activo y aceptar el origen.
-   *   - El territorio debe incluir al menos el estado.
-   */
   recibir(input: RecibirInput, tenant: Tenant): ResultadoIngest {
     const validacionId = validarId(input.id);
     if (!validacionId.exito) return validacionId;
@@ -87,7 +82,9 @@ export class IngestService {
   }
 
   listarPorTenant(tenantId: string): Expediente[] {
-    return this.repo.listarPorTenant(tenantId);
+    return this.repo
+      .listar()
+      .filter((e) => e.tenantId === tenantId);
   }
 
   filtrar(filtros: FiltrosIngest): Expediente[] {
