@@ -1,4 +1,5 @@
-import { LinguisticRepository } from "./repository.js";
+import { type Repository } from "../../persistence/types.js";
+import { InMemoryRepository } from "../../persistence/in-memory.js";
 import {
   validarIdHablante,
   validarIdValidacion,
@@ -24,12 +25,12 @@ import {
  */
 export class LinguisticService {
   constructor(
-    private readonly repo: LinguisticRepository = new LinguisticRepository()
+    private readonly hablantes: Repository<Hablante> =
+      new InMemoryRepository<Hablante>(),
+    private readonly validaciones: Repository<ValidacionLinguistica> =
+      new InMemoryRepository<ValidacionLinguistica>()
   ) {}
 
-  /**
-   * Acredita un hablante nativo para una lengua y variante especifica.
-   */
   acreditarHablante(input: AcreditarHablanteInput): ResultadoLinguistico {
     const validaciones = [
       validarIdHablante(input.id),
@@ -40,11 +41,8 @@ export class LinguisticService {
       if (!v.exito) return v;
     }
 
-    if (this.repo.existeHablante(input.id)) {
-      return {
-        exito: false,
-        razon: "Hablante ya acreditado: " + input.id,
-      };
+    if (this.hablantes.existe(input.id)) {
+      return { exito: false, razon: "Hablante ya acreditado: " + input.id };
     }
 
     const hablante: Hablante = {
@@ -58,31 +56,22 @@ export class LinguisticService {
       acreditadoPor: input.acreditadoPor,
     };
 
-    this.repo.guardarHablante(hablante);
+    this.hablantes.guardar(hablante);
 
     return { exito: true, hablante };
   }
 
-  /**
-   * Registra una validacion linguistica en estado pendiente.
-   */
   registrarValidacion(input: ValidarInput): ResultadoLinguistico {
     const validacionId = validarIdValidacion(input.id);
     if (!validacionId.exito) return validacionId;
 
-    if (this.repo.existeValidacion(input.id)) {
-      return {
-        exito: false,
-        razon: "Validacion ya existe: " + input.id,
-      };
+    if (this.validaciones.existe(input.id)) {
+      return { exito: false, razon: "Validacion ya existe: " + input.id };
     }
 
-    const hablante = this.repo.obtenerHablante(input.hablanteId);
+    const hablante = this.hablantes.obtener(input.hablanteId);
     if (!hablante) {
-      return {
-        exito: false,
-        razon: "Hablante no encontrado: " + input.hablanteId,
-      };
+      return { exito: false, razon: "Hablante no encontrado: " + input.hablanteId };
     }
 
     const validacion = validarValidacion(input, hablante);
@@ -103,16 +92,13 @@ export class LinguisticService {
       motivoRechazo: null,
     };
 
-    this.repo.guardarValidacion(nueva);
+    this.validaciones.guardar(nueva);
 
     return { exito: true, validacion: nueva };
   }
 
-  /**
-   * Aprueba una validacion en estado pendiente.
-   */
   aprobarValidacion(id: string): ResultadoLinguistico {
-    const validacion = this.repo.obtenerValidacion(id);
+    const validacion = this.validaciones.obtener(id);
     if (!validacion) {
       return { exito: false, razon: "Validacion no encontrada: " + id };
     }
@@ -129,16 +115,13 @@ export class LinguisticService {
       validadaEn: new Date().toISOString(),
     };
 
-    this.repo.guardarValidacion(actualizada);
+    this.validaciones.guardar(actualizada);
 
     return { exito: true, validacion: actualizada };
   }
 
-  /**
-   * Rechaza una validacion con motivo obligatorio.
-   */
   rechazarValidacion(id: string, motivo: string): ResultadoLinguistico {
-    const validacion = this.repo.obtenerValidacion(id);
+    const validacion = this.validaciones.obtener(id);
     if (!validacion) {
       return { exito: false, razon: "Validacion no encontrada: " + id };
     }
@@ -157,50 +140,49 @@ export class LinguisticService {
       motivoRechazo: motivo,
     };
 
-    this.repo.guardarValidacion(actualizada);
+    this.validaciones.guardar(actualizada);
 
     return { exito: true, validacion: actualizada };
   }
 
   obtenerValidacion(id: string): ValidacionLinguistica | null {
-    return this.repo.obtenerValidacion(id);
+    return this.validaciones.obtener(id);
   }
 
   obtenerHablante(id: string): Hablante | null {
-    return this.repo.obtenerHablante(id);
+    return this.hablantes.obtener(id);
   }
 
   listarHablantesPorTenant(tenantId: string): Hablante[] {
-    return this.repo.listarHablantesPorTenant(tenantId);
+    return this.hablantes.listar().filter((h) => h.tenantId === tenantId);
   }
 
   listarValidacionesPorExpediente(expedienteId: string): ValidacionLinguistica[] {
-    return this.repo.listarValidacionesPorExpediente(expedienteId);
+    return this.validaciones
+      .listar()
+      .filter((v) => v.expedienteId === expedienteId);
   }
 
   filtrar(filtros: FiltrosValidacion): ValidacionLinguistica[] {
-    return this.repo.listarValidaciones().filter((v) => {
+    return this.validaciones.listar().filter((v) => {
       if (filtros.tenantId && v.tenantId !== filtros.tenantId) return false;
-      if (filtros.expedienteId && v.expedienteId !== filtros.expedienteId) {
-        return false;
-      }
+      if (filtros.expedienteId && v.expedienteId !== filtros.expedienteId) return false;
       if (filtros.estado && v.estado !== filtros.estado) return false;
-      if (filtros.hablanteId && v.hablanteId !== filtros.hablanteId) {
-        return false;
-      }
+      if (filtros.hablanteId && v.hablanteId !== filtros.hablanteId) return false;
       return true;
     });
   }
 
   contarHablantes(): number {
-    return this.repo.contarHablantes();
+    return this.hablantes.contar();
   }
 
   contarValidaciones(): number {
-    return this.repo.contarValidaciones();
+    return this.validaciones.contar();
   }
 
   limpiar(): void {
-    this.repo.limpiar();
+    this.hablantes.limpiar();
+    this.validaciones.limpiar();
   }
 }

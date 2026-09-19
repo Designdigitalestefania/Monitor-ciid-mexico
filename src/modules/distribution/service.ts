@@ -1,4 +1,5 @@
-import { DistributionRepository } from "./repository.js";
+import { type Repository } from "../../persistence/types.js";
+import { InMemoryRepository } from "../../persistence/in-memory.js";
 import {
   validarCanal,
   validarIdDistribucion,
@@ -20,14 +21,10 @@ import {
  */
 export class DistributionService {
   constructor(
-    private readonly repo: DistributionRepository = new DistributionRepository()
+    private readonly repo: Repository<Distribucion> =
+      new InMemoryRepository<Distribucion>()
   ) {}
 
-  /**
-   * Registra una distribucion nueva para un expediente y canal.
-   * La version se calcula automaticamente segun distribuciones previas
-   * del mismo expediente y canal.
-   */
   distribuir(input: DistribuirInput): ResultadoDistribucion {
     const validaciones = [
       validarIdDistribucion(input.id),
@@ -40,10 +37,7 @@ export class DistributionService {
     }
 
     if (this.repo.existe(input.id)) {
-      return {
-        exito: false,
-        razon: "Distribucion ya existe: " + input.id,
-      };
+      return { exito: false, razon: "Distribucion ya existe: " + input.id };
     }
 
     const version = this.calcularVersion(input.expedienteId, input.canal);
@@ -74,28 +68,23 @@ export class DistributionService {
   }
 
   listarPorExpediente(expedienteId: string): Distribucion[] {
-    return this.repo.listarPorExpediente(expedienteId);
+    return this.repo.listar().filter((d) => d.expedienteId === expedienteId);
   }
 
   listarPorTenant(tenantId: string): Distribucion[] {
-    return this.repo.listarPorTenant(tenantId);
+    return this.repo.listar().filter((d) => d.tenantId === tenantId);
   }
 
   filtrar(filtros: FiltrosDistribucion): Distribucion[] {
     return this.repo.listar().filter((d) => {
       if (filtros.tenantId && d.tenantId !== filtros.tenantId) return false;
-      if (filtros.expedienteId && d.expedienteId !== filtros.expedienteId) {
-        return false;
-      }
+      if (filtros.expedienteId && d.expedienteId !== filtros.expedienteId) return false;
       if (filtros.canal && d.canal !== filtros.canal) return false;
       if (filtros.estado && d.estado !== filtros.estado) return false;
       return true;
     });
   }
 
-  /**
-   * Retira una distribucion con motivo obligatorio.
-   */
   retirar(id: string, motivo: string): ResultadoDistribucion {
     const distribucion = this.repo.obtener(id);
     if (!distribucion) {
@@ -129,13 +118,10 @@ export class DistributionService {
     this.repo.limpiar();
   }
 
-  /**
-   * Calcula la version siguiente para un expediente y canal dados.
-   */
   private calcularVersion(expedienteId: string, canal: string): number {
     const previas = this.repo
-      .listarPorExpediente(expedienteId)
-      .filter((d) => d.canal === canal);
+      .listar()
+      .filter((d) => d.expedienteId === expedienteId && d.canal === canal);
     return previas.length + 1;
   }
 }

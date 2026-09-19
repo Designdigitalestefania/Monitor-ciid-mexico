@@ -11,6 +11,7 @@ import { type Actor } from "../../domain/actor.js";
  */
 
 export interface RegistroPatrimonial {
+  readonly id: string;
   readonly expedienteId: string;
   readonly tenantId: string;
   readonly preservadoEn: string;

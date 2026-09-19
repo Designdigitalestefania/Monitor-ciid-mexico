@@ -1,4 +1,5 @@
-import { CitizenRepository } from "./repository.js";
+import { type Repository } from "../../persistence/types.js";
+import { InMemoryRepository } from "../../persistence/in-memory.js";
 import {
   validarConsentimiento,
   validarIdReporte,
@@ -20,12 +21,10 @@ import {
  */
 export class CitizenService {
   constructor(
-    private readonly repo: CitizenRepository = new CitizenRepository()
+    private readonly repo: Repository<RegistroCiudadano> =
+      new InMemoryRepository<RegistroCiudadano>()
   ) {}
 
-  /**
-   * Registra un reporte ciudadano nuevo.
-   */
   registrar(input: RegistrarInput): ResultadoCiudadano {
     const validaciones = [
       validarIdReporte(input.id),
@@ -38,10 +37,7 @@ export class CitizenService {
     }
 
     if (this.repo.existe(input.id)) {
-      return {
-        exito: false,
-        razon: "Reporte ya existe: " + input.id,
-      };
+      return { exito: false, razon: "Reporte ya existe: " + input.id };
     }
 
     const ahora = new Date().toISOString();
@@ -73,7 +69,7 @@ export class CitizenService {
   }
 
   listarPorTenant(tenantId: string): RegistroCiudadano[] {
-    return this.repo.listarPorTenant(tenantId);
+    return this.repo.listar().filter((r) => r.tenantId === tenantId);
   }
 
   filtrar(filtros: FiltrosCiudadano): RegistroCiudadano[] {
@@ -85,22 +81,13 @@ export class CitizenService {
     });
   }
 
-  /**
-   * Vincula un reporte ciudadano al expediente creado en el pipeline.
-   */
-  vincularAExpediente(
-    id: string,
-    expedienteId: string
-  ): ResultadoCiudadano {
+  vincularAExpediente(id: string, expedienteId: string): ResultadoCiudadano {
     const registro = this.repo.obtener(id);
     if (!registro) {
       return { exito: false, razon: "Reporte no encontrado: " + id };
     }
     if (registro.estado === "retirado") {
-      return {
-        exito: false,
-        razon: "No se puede vincular un reporte retirado",
-      };
+      return { exito: false, razon: "No se puede vincular un reporte retirado" };
     }
 
     const actualizado: RegistroCiudadano = {
@@ -114,10 +101,6 @@ export class CitizenService {
     return { exito: true, registro: actualizado };
   }
 
-  /**
-   * Retira un reporte por solicitud de la persona o comunidad.
-   * Ver docs/CONSENTIMIENTO-INFORMADO.md.
-   */
   retirar(id: string, motivo: string): ResultadoCiudadano {
     const registro = this.repo.obtener(id);
     if (!registro) {

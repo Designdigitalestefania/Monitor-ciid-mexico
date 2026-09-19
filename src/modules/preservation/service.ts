@@ -3,6 +3,8 @@ import {
   type Expediente,
 } from "../../domain/expediente.js";
 import { registrarActor } from "../../domain/actor.js";
+import { type Repository } from "../../persistence/types.js";
+import { InMemoryRepository } from "../../persistence/in-memory.js";
 import {
   validarEtapaPreservable,
   validarYaPreservado,
@@ -24,11 +26,11 @@ const VERSION_ACTUAL = "1.0.0";
  * Ver ADR-003.
  */
 export class PreservationService {
-  private readonly registros: Map<string, RegistroPatrimonial> = new Map();
+  constructor(
+    private readonly repo: Repository<RegistroPatrimonial> =
+      new InMemoryRepository<RegistroPatrimonial>()
+  ) {}
 
-  /**
-   * Preserva un expediente aprobado, generando su registro patrimonial.
-   */
   preservar(input: PreservarInput): ResultadoPreservacion {
     const { expediente, actor } = input;
 
@@ -53,6 +55,7 @@ export class PreservationService {
     });
 
     const registro: RegistroPatrimonial = {
+      id: expediente.id,
       expedienteId: expediente.id,
       tenantId: expediente.tenantId,
       preservadoEn: ahora,
@@ -64,7 +67,7 @@ export class PreservationService {
       totalTransiciones: expedientePreservado.transiciones.length,
     };
 
-    this.registros.set(expediente.id, registro);
+    this.repo.guardar(registro);
 
     return {
       exito: true,
@@ -73,40 +76,22 @@ export class PreservationService {
     };
   }
 
-  /**
-   * Obtiene un registro patrimonial por ID de expediente.
-   */
   obtenerRegistro(expedienteId: string): RegistroPatrimonial | null {
-    return this.registros.get(expedienteId) ?? null;
+    return this.repo.obtener(expedienteId);
   }
 
-  /**
-   * Lista todos los registros patrimoniales de un tenant.
-   */
   listarPorTenant(tenantId: string): RegistroPatrimonial[] {
-    return Array.from(this.registros.values()).filter(
-      (r) => r.tenantId === tenantId
-    );
+    return this.repo.listar().filter((r) => r.tenantId === tenantId);
   }
 
-  /**
-   * Cuenta los registros patrimoniales.
-   */
   contar(): number {
-    return this.registros.size;
+    return this.repo.contar();
   }
 
-  /**
-   * Limpia el almacen. Util para tests.
-   */
   limpiar(): void {
-    this.registros.clear();
+    this.repo.limpiar();
   }
 
-  /**
-   * Genera un hash documental determinista a partir del expediente.
-   * No es criptografico, es un identificador de integridad simple.
-   */
   private generarHash(expediente: Expediente, timestamp: string): string {
     const base = [
       expediente.id,
