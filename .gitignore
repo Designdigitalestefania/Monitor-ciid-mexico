@@ -46,3 +46,7 @@ Thumbs.db
 *.db-wal
 *.db-shm
 data/
+
+# NPM
+.npmrc
+*.tgz
