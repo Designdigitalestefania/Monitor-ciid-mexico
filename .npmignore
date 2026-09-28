@@ -1,0 +1,23 @@
+# Tests
+tests/
+coverage/
+*.test.ts
+
+# Codigo fuente (solo publicamos dist/)
+src/
+
+# Configuracion de desarrollo
+.github/
+tsconfig.json
+.eslintrc.json
+vitest.config.ts
+
+# Documentacion interna
+docs/
+*.md
+!README.md
+
+# Archivos temporales
+*.log
+*.tmp
+.DS_Store
