@@ -7,8 +7,8 @@
 **Centro Inteligente de Informacion Digital**
 
 <p>
-  <img src="https://img.shields.io/badge/version-v0.5.0-blue?style=for-the-badge" alt="Version">
-  <img src="https://img.shields.io/badge/tests-99_passing-success?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/version-v1.0.0-blue?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/tests-212_passing-success?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/license-Proprietary-red?style=for-the-badge" alt="License">
   <img src="https://img.shields.io/badge/deploy-Netlify-00C7B7?style=for-the-badge" alt="Deploy">
 </p>
@@ -21,13 +21,13 @@
 
 ## Estado del proyecto
 
-**Piloto tecnico fundacional completado.**
+**Piloto tecnico fundacional completado. Version v1.0.0.**
 
 | Aspecto | Estado |
 |---------|--------|
-| Version | v0.5.0 |
-| Modulos funcionales | 5 |
-| Tests automatizados | 99 |
+| Version | v1.0.0 |
+| Modulos funcionales | 9 |
+| Tests automatizados | 212 |
 | Estado del CI | Verde |
 
 ## Concepto
@@ -44,13 +44,18 @@ y linguistico de las comunidades de Oaxaca.
 | Modulo | Responsabilidad | Tests |
 |--------|----------------|-------|
 | domain | Entidades y reglas puras | 33 |
+| persistence | Interfaz generica + memoria + SQLite | 21 |
 | tenants | Multi-tenancy con aislamiento | 13 |
 | ingest | Puerta de entrada al pipeline | 9 |
 | pipeline | Maquina de estados | 17 |
 | preservation | Archivo patrimonial | 10 |
-| Integracion | Flujo completo | 15 |
+| citizen | Participacion ciudadana | 16 |
+| linguistic | Validacion linguistica | 17 |
+| distribution | Publicacion multiformato | 18 |
+| metrics | Analitica y auditoria | 13 |
+| Integracion | Flujos completos | 34 |
 | Seguridad | Aislamiento entre tenants | 2 |
-| **Total** | | **99** |
+| **Total** | | **212** |
 
 ## Reglas duras implementadas
 
