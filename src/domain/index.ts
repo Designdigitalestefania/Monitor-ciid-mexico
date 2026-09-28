@@ -4,3 +4,7 @@ export * from "./lengua.js";
 export * from "./actor.js";
 export * from "./etapa.js";
 export * from "./expediente.js";
+export * from "./fuente.js";
+export * from "./aporte.js";
+export * from "./evento.js";
+export * from "./publicacion.js";

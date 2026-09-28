@@ -1,4 +1,4 @@
-export const CIID_VERSION = "0.1.0";
+export const CIID_VERSION = "1.1.0";
 
 export interface CiidInfo {
   readonly name: string;
@@ -24,3 +24,4 @@ export * from "./modules/citizen/index.js";
 export * from "./modules/linguistic/index.js";
 export * from "./modules/distribution/index.js";
 export * from "./modules/metrics/index.js";
+export * from "./modules/whatsapp/index.js";
