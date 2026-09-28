@@ -1,11 +1,10 @@
 import { type TerritorioSnapshot } from "../../domain/territorio.js";
 import { type LenguaSnapshot } from "../../domain/lengua.js";
 
-/**
- * Tipos del modulo citizen.
- *
- * Ver ADR-002: participacion ciudadana como fuente de primera clase.
- */
+// Re-export del dominio canónico
+export type { Consentimiento } from "../../domain/aporte.js";
+
+import { type Consentimiento } from "../../domain/aporte.js";
 
 export type CanalCiudadano =
   | "whatsapp"
@@ -15,13 +14,6 @@ export type CanalCiudadano =
   | "presencial";
 
 export type EstadoReporte = "activo" | "vinculado" | "retirado";
-
-export interface Consentimiento {
-  readonly otorgado: boolean;
-  readonly fecha: string;
-  readonly usoInformativo: boolean;
-  readonly usoPatrimonial: boolean;
-}
 
 export interface RegistroCiudadano {
   readonly id: string;

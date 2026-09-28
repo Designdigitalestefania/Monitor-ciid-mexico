@@ -11,6 +11,8 @@ export const ETAPAS = [
 
 export type Etapa = (typeof ETAPAS)[number];
 
+export type EtapaEspecial = "RETURNED" | "REJECTED";
+
 export interface ValidacionTransicion {
   readonly valida: boolean;
   readonly razon?: string;

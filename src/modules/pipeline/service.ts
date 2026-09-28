@@ -3,6 +3,7 @@ import {
   type Expediente,
 } from "../../domain/expediente.js";
 import { registrarActor, type Actor } from "../../domain/actor.js";
+import { type Etapa } from "../../domain/etapa.js";
 import {
   validarAvance,
   validarDevolucionDesde,
@@ -35,7 +36,15 @@ export class PipelineService {
   avanzar(input: AvanzarInput): ResultadoPipeline {
     const { expediente, actor, razon } = input;
 
-    const validacion = validarAvance(expediente.etapaActual, actor);
+    // Guard v1.1: no se puede avanzar desde una etapa especial
+    if (expediente.etapaActual === "RETURNED" || expediente.etapaActual === "REJECTED") {
+      return {
+        exito: false,
+        razon: "No se puede avanzar desde una etapa especial: " + expediente.etapaActual,
+      };
+    }
+
+    const validacion = validarAvance(expediente.etapaActual as Etapa, actor);
     if (!validacion.exito || !validacion.siguiente) {
       return validacion;
     }
@@ -59,6 +68,14 @@ export class PipelineService {
 
     const validacionActor = validarActorParaDecision(actor);
     if (!validacionActor.exito) return validacionActor;
+
+    // Guard v1.1: etapa especial no permite aprobar
+    if (expediente.etapaActual === "RETURNED" || expediente.etapaActual === "REJECTED") {
+      return {
+        exito: false,
+        razon: "No se puede aprobar desde una etapa especial: " + expediente.etapaActual,
+      };
+    }
 
     if (expediente.etapaActual !== "DECISION") {
       return {
@@ -84,7 +101,15 @@ export class PipelineService {
   devolver(input: DevolverInput): ResultadoPipeline {
     const { expediente, actor, razon } = input;
 
-    const validacionEtapa = validarDevolucionDesde(expediente.etapaActual);
+    // Guard v1.1: etapa especial no permite devolver
+    if (expediente.etapaActual === "RETURNED" || expediente.etapaActual === "REJECTED") {
+      return {
+        exito: false,
+        razon: "No se puede devolver desde una etapa especial: " + expediente.etapaActual,
+      };
+    }
+
+    const validacionEtapa = validarDevolucionDesde(expediente.etapaActual as Etapa);
     if (!validacionEtapa.exito) return validacionEtapa;
 
     const validacionRazon = validarRazon(razon);
@@ -107,7 +132,15 @@ export class PipelineService {
   rechazar(input: RechazarInput): ResultadoPipeline {
     const { expediente, actor, razon } = input;
 
-    const validacionEtapa = validarRechazoDesde(expediente.etapaActual);
+    // Guard v1.1: etapa especial no permite rechazar de nuevo
+    if (expediente.etapaActual === "RETURNED" || expediente.etapaActual === "REJECTED") {
+      return {
+        exito: false,
+        razon: "Ya está en una etapa especial: " + expediente.etapaActual,
+      };
+    }
+
+    const validacionEtapa = validarRechazoDesde(expediente.etapaActual as Etapa);
     if (!validacionEtapa.exito) return validacionEtapa;
 
     const validacionRazon = validarRazon(razon);
