@@ -1,5 +1,5 @@
 export const config = {
-  port: Number(process.env.PORT ?? 3000),
+  port: Number(process.env.PORT ?? 8080),
   host: process.env.HOST ?? '0.0.0.0',
   env: process.env.NODE_ENV ?? 'development',
   apiKey: process.env.CIID_API_KEY ?? 'dev-key-cambiar-en-produccion',
