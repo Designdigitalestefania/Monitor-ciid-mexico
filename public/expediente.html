@@ -38,21 +38,14 @@
     <div id="detalle" class="ciid-loading">Cargando…</div>
   </div>
 
-  <div class="ciid-panel">
+  <div class="ciid-panel" id="panel-acciones">
     <div class="ciid-panel__titulo">Acciones editoriales</div>
-    <div class="ciid-flex ciid-flex--wrap">
-      <button class="ciid-btn ciid-btn--primario" onclick="accion('avanzar')">Avanzar etapa</button>
-      <button class="ciid-btn ciid-btn--exito" onclick="accion('aprobar')">Aprobar y publicar</button>
-      <button class="ciid-btn ciid-btn--neutro" onclick="accion('devolver')">Devolver a edición</button>
+    <div class="ciid-flex ciid-flex--wrap" id="botones-accion">
+      <!-- Los botones se generan dinámicamente según la etapa -->
     </div>
     <p style="font-size:12px;color:#666;margin-top:12px;">
       Regla CIID: la decisión es humana. El sistema solo facilita el flujo.
     </p>
-  </div>
-
-  <div class="ciid-panel">
-    <div class="ciid-panel__titulo">Historial de transiciones</div>
-    <div id="historial" class="ciid-loading">Cargando…</div>
   </div>
 </main>
 
@@ -72,6 +65,8 @@ async function cargar() {
   try {
     const e = await api.get(`/api/v1/expedientes/${id}`);
     document.getElementById('titulo').textContent = e.id;
+    renderBotonones(e.etapaActual);
+
     document.getElementById('subtitulo').innerHTML =
       `<span class="ciid-badge ciid-badge--${e.etapaActual}">${e.etapaActual}</span> · Tenant ${e.tenantId}`;
 
@@ -125,6 +120,26 @@ async function accion(tipo) {
   } finally {
     btn.disabled = false;
   }
+}
+
+function renderBotonones(etapa) {
+  const contenedor = document.getElementById('botones-accion');
+  let html = '';
+
+  if (['RECEIVED', 'PROCESSING', 'CLASSIFIED', 'EDITORIAL_REVIEW', 'VERIFICATION'].includes(etapa)) {
+    html += `<button class="ciid-btn ciid-btn--primario" onclick="accion('avanzar')">Avanzar etapa</button>`;
+  }
+
+  if (etapa === 'DECISION') {
+    html += `<button class="ciid-btn ciid-btn--exito" onclick="accion('aprobar')">Aprobar y publicar</button>`;
+    html += `<button class="ciid-btn ciid-btn--neutro" onclick="accion('devolver')">Devolver a edición</button>`;
+  }
+
+  if (etapa === 'PUBLISHED' || etapa === 'PRESERVED' || etapa === 'RETURNED' || etapa === 'REJECTED') {
+    html += `<p style="font-size:14px;color:#666;">Este expediente ya completó el flujo editorial.</p>`;
+  }
+
+  contenedor.innerHTML = html;
 }
 
 cargar();
