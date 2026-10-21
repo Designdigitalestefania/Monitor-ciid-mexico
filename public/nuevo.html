@@ -114,8 +114,10 @@ document.getElementById('form').addEventListener('submit', async (ev) => {
     territorio: {
       id: document.getElementById('territorioId').value.trim(),
       nombre: document.getElementById('territorioId').value.trim(),
+      estado: 'Oaxaca',
+      pais: 'Mexico',
     },
-    contenido,
+    contenido: document.getElementById('contenido').value.trim(),
   };
 
   try {
