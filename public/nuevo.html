@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nuevo expediente · MONITOR CIID</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/ciid.css">
+</head>
+<body>
+
+<header class="ciid-header">
+  <a class="ciid-header__logo" href="/">
+    <div class="ciid-header__mark">CIID</div>
+    <div class="ciid-header__nombre">MONITOR CIID</div>
+  </a>
+  <nav class="ciid-header__nav">
+    <a href="/">Inicio</a>
+    <a href="/bandeja.html">Bandeja</a>
+    <a href="/nuevo.html" class="activo">Nuevo</a>
+    <a href="/metricas.html">Métricas</a>
+  </nav>
+</header>
+
+<main class="ciid-main">
+  <h1 class="ciid-titulo">Nuevo expediente</h1>
+  <p class="ciid-subtitulo">Registra un reporte ciudadano manualmente</p>
+
+  <div id="alerta"></div>
+
+  <div class="ciid-panel">
+    <form class="ciid-form" id="form">
+      <div class="ciid-campo">
+        <label for="tenantId">ID del tenant</label>
+        <input id="tenantId" value="monitor-noticias" required>
+      </div>
+      <div class="ciid-campo">
+        <label for="origenCanal">Canal de origen</label>
+        <select id="origenCanal" required>
+          <option value="whatsapp">WhatsApp</option>
+          <option value="correo">Correo electrónico</option>
+          <option value="web">Formulario web</option>
+          <option value="presencial">Presencial</option>
+        </select>
+      </div>
+      <div class="ciid-campo">
+        <label for="origenRemitente">Remitente (opcional)</label>
+        <input id="origenRemitente" placeholder="Ej. +52 951 123 4567">
+      </div>
+      <div class="ciid-campo">
+        <label for="territorioId">Territorio</label>
+        <input id="territorioId" value="oaxaca-sierra-norte" required>
+      </div>
+      <div class="ciid-campo">
+        <label for="contenido">Contenido del reporte</label>
+        <textarea id="contenido" placeholder="Describe la información recibida…" required></textarea>
+      </div>
+      <div class="ciid-flex ciid-flex--space ciid-mt-2">
+        <button type="button" class="ciid-btn ciid-btn--neutro" onclick="history.back()">Cancelar</button>
+        <button type="submit" class="ciid-btn ciid-btn--acento" id="btnEnviar">Registrar expediente</button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<footer class="ciid-footer">MONITOR CIID · v1.1</footer>
+
+<script src="/js/api.js"></script>
+<script>
+document.getElementById('form').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const btn = document.getElementById('btnEnviar');
+  btn.disabled = true;
+  btn.textContent = 'Enviando…';
+
+  const tenantId = document.getElementById('tenantId').value.trim();
+  const contenido = document.getElementById('contenido').value.trim();
+
+  if (!contenido) {
+    mostrarAlerta(document.getElementById('alerta'), 'error', 'El contenido es obligatorio.');
+    btn.disabled = false;
+    btn.textContent = 'Registrar expediente';
+    return;
+  }
+
+  // Generar un ID único
+  const id = 'CIID-' + Date.now().toString(36).toUpperCase();
+
+  // Verificar/crear el tenant primero
+  try {
+    const exists = await fetch(`/api/v1/tenants/${tenantId}`, {
+      headers: { 'x-api-key': 'dev-key-cambiar-en-produccion' }
+    });
+    if (exists.status === 404) {
+      await api.post('/api/v1/tenants', {
+        id: tenantId,
+        nombre: 'Monitor Noticias Oaxaca',
+        tipo: 'medio',
+        territorioId: document.getElementById('territorioId').value.trim(),
+      });
+    }
+  } catch (e) {
+    // Si falla la verificación, continuamos y el POST dará el error real
+  }
+
+  const body = {
+    id,
+    tenantId,
+    origen: {
+      canal: document.getElementById('origenCanal').value,
+      remitente: document.getElementById('origenRemitente').value.trim() || undefined,
+      recibidoEn: new Date().toISOString(),
+    },
+    territorio: {
+      id: document.getElementById('territorioId').value.trim(),
+      nombre: document.getElementById('territorioId').value.trim(),
+    },
+    contenido,
+  };
+
+  try {
+    const exp = await api.post('/api/v1/expedientes', body);
+    mostrarAlerta(document.getElementById('alerta'), 'exito', `Expediente ${exp.id} creado. Redirigiendo…`);
+    setTimeout(() => location.href = `/expediente.html?id=${exp.id}`, 900);
+  } catch (e) {
+    mostrarAlerta(document.getElementById('alerta'), 'error', e.message);
+    btn.disabled = false;
+    btn.textContent = 'Registrar expediente';
+  }
+});
+</script>
+</body>
+</html>

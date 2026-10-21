@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bandeja · MONITOR CIID</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/ciid.css">
+</head>
+<body>
+
+<header class="ciid-header">
+  <a class="ciid-header__logo" href="/">
+    <div class="ciid-header__mark">CIID</div>
+    <div class="ciid-header__nombre">MONITOR CIID</div>
+  </a>
+  <nav class="ciid-header__nav">
+    <a href="/">Inicio</a>
+    <a href="/bandeja.html" class="activo">Bandeja</a>
+    <a href="/nuevo.html">Nuevo</a>
+    <a href="/metricas.html">Métricas</a>
+  </nav>
+</header>
+
+<main class="ciid-main">
+  <h1 class="ciid-titulo">Bandeja de expedientes</h1>
+  <p class="ciid-subtitulo">Todos los reportes en el pipeline editorial</p>
+
+  <div id="alerta"></div>
+
+  <div class="ciid-kpis" id="kpis">
+    <div class="ciid-kpi"><div class="ciid-kpi__valor" id="kpi-total">—</div><div class="ciid-kpi__label">Total</div></div>
+  </div>
+
+  <div class="ciid-flex ciid-flex--wrap" style="margin-bottom:16px;">
+    <button class="ciid-btn ciid-btn--neutro ciid-btn--sm" data-filtro="">Todas</button>
+    <button class="ciid-btn ciid-btn--neutro ciid-btn--sm" data-filtro="RECEIVED">Recibidas</button>
+    <button class="ciid-btn ciid-btn--neutro ciid-btn--sm" data-filtro="PROCESSING">Procesando</button>
+    <button class="ciid-btn ciid-btn--neutro ciid-btn--sm" data-filtro="EDITORIAL_REVIEW">Revisión editorial</button>
+    <button class="ciid-btn ciid-btn--neutro ciid-btn--sm" data-filtro="VERIFICATION">Verificación</button>
+    <button class="ciid-btn ciid-btn--neutro ciid-btn--sm" data-filtro="DECISION">Decisión</button>
+    <button class="ciid-btn ciid-btn--neutro ciid-btn--sm" data-filtro="PUBLISHED">Publicadas</button>
+    <button class="ciid-btn ciid-btn--neutro ciid-btn--sm" data-filtro="PRESERVED">Preservadas</button>
+  </div>
+
+  <div class="ciid-tabla">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Etapa</th>
+          <th>Origen</th>
+          <th>Tenant</th>
+          <th>Creado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <tr><td colspan="6" class="ciid-loading">Cargando expedientes…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<footer class="ciid-footer">
+  MONITOR CIID · Innovar para informar · Oaxaca · v1.1
+</footer>
+
+<script src="/js/api.js"></script>
+<script>
+let etapaActual = '';
+
+async function cargar(filtro = '') {
+  etapaActual = filtro;
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '<tr><td colspan="6" class="ciid-loading">Cargando…</td></tr>';
+
+  document.querySelectorAll('[data-filtro]').forEach(b => {
+    b.classList.toggle('activo', b.dataset.filtro === filtro);
+    b.classList.toggle('ciid-btn--primario', b.dataset.filtro === filtro);
+    b.classList.toggle('ciid-btn--neutro', b.dataset.filtro !== filtro);
+  });
+
+  try {
+    const url = '/api/v1/expedientes' + (filtro ? `?etapa=${filtro}` : '');
+    const lista = await api.get(url);
+
+    document.getElementById('kpi-total').textContent = lista.length;
+
+    if (lista.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="ciid-loading">No hay expedientes en esta etapa.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = lista.map(e => `
+      <tr onclick="location.href='/expediente.html?id=${e.id}'">
+        <td><code style="font-size:12px;">${e.id}</code></td>
+        <td><span class="ciid-badge ciid-badge--${e.etapaActual}">${e.etapaActual}</span></td>
+        <td>${e.origen?.canal ?? '—'}</td>
+        <td>${e.tenantId}</td>
+        <td>${formatFecha(e.creadoEn ?? e.timestamp ?? '')}</td>
+        <td style="text-align:right;">
+          <span class="ciid-btn ciid-btn--acento ciid-btn--sm">Abrir →</span>
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="6" class="ciid-loading" style="color:#C62828;">Error: ${e.message}</td></tr>`;
+  }
+}
+
+document.querySelectorAll('[data-filtro]').forEach(btn => {
+  btn.addEventListener('click', () => cargar(btn.dataset.filtro));
+});
+
+cargar();
+setInterval(() => cargar(etapaActual), 10000);
+</script>
+</body>
+</html>

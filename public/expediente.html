@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Expediente · MONITOR CIID</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/ciid.css">
+</head>
+<body>
+
+<header class="ciid-header">
+  <a class="ciid-header__logo" href="/">
+    <div class="ciid-header__mark">CIID</div>
+    <div class="ciid-header__nombre">MONITOR CIID</div>
+  </a>
+  <nav class="ciid-header__nav">
+    <a href="/">Inicio</a>
+    <a href="/bandeja.html" class="activo">Bandeja</a>
+    <a href="/nuevo.html">Nuevo</a>
+    <a href="/metricas.html">Métricas</a>
+  </nav>
+</header>
+
+<main class="ciid-main">
+  <div class="ciid-flex ciid-flex--space" style="margin-bottom:16px;">
+    <div>
+      <h1 class="ciid-titulo" id="titulo">Cargando…</h1>
+      <p class="ciid-subtitulo" id="subtitulo">—</p>
+    </div>
+    <a href="/bandeja.html" class="ciid-btn ciid-btn--neutro ciid-btn--sm">← Bandeja</a>
+  </div>
+
+  <div id="alerta"></div>
+
+  <div class="ciid-panel">
+    <div class="ciid-panel__titulo">Detalle</div>
+    <div id="detalle" class="ciid-loading">Cargando…</div>
+  </div>
+
+  <div class="ciid-panel">
+    <div class="ciid-panel__titulo">Acciones editoriales</div>
+    <div class="ciid-flex ciid-flex--wrap">
+      <button class="ciid-btn ciid-btn--primario" onclick="accion('avanzar')">Avanzar etapa</button>
+      <button class="ciid-btn ciid-btn--exito" onclick="accion('aprobar')">Aprobar y publicar</button>
+      <button class="ciid-btn ciid-btn--neutro" onclick="accion('devolver')">Devolver a edición</button>
+    </div>
+    <p style="font-size:12px;color:#666;margin-top:12px;">
+      Regla CIID: la decisión es humana. El sistema solo facilita el flujo.
+    </p>
+  </div>
+
+  <div class="ciid-panel">
+    <div class="ciid-panel__titulo">Historial de transiciones</div>
+    <div id="historial" class="ciid-loading">Cargando…</div>
+  </div>
+</main>
+
+<footer class="ciid-footer">MONITOR CIID · v1.1</footer>
+
+<script src="/js/api.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const id = params.get('id');
+
+async function cargar() {
+  if (!id) {
+    document.getElementById('detalle').textContent = 'ID no especificado.';
+    return;
+  }
+
+  try {
+    const e = await api.get(`/api/v1/expedientes/${id}`);
+    document.getElementById('titulo').textContent = e.id;
+    document.getElementById('subtitulo').innerHTML =
+      `<span class="ciid-badge ciid-badge--${e.etapaActual}">${e.etapaActual}</span> · Tenant ${e.tenantId}`;
+
+    document.getElementById('detalle').innerHTML = `
+      <table style="width:100%;font-size:14px;">
+        <tr><td style="padding:6px 0;color:#666;width:180px;">ID</td><td><code>${e.id}</code></td></tr>
+        <tr><td style="padding:6px 0;color:#666;">Tenant</td><td>${e.tenantId}</td></tr>
+        <tr><td style="padding:6px 0;color:#666;">Etapa actual</td><td><span class="ciid-badge ciid-badge--${e.etapaActual}">${e.etapaActual}</span></td></tr>
+        <tr><td style="padding:6px 0;color:#666;">Origen</td><td>${e.origen?.canal ?? '—'} ${e.origen?.remitente ? '· ' + e.origen.remitente : ''}</td></tr>
+        <tr><td style="padding:6px 0;color:#666;">Territorio</td><td>${e.territorio?.nombre ?? e.territorioId ?? '—'}</td></tr>
+        <tr><td style="padding:6px 0;color:#666;">Creado</td><td>${formatFecha(e.creadoEn ?? '')}</td></tr>
+      </table>
+    `;
+
+    const hist = (e.transiciones ?? []).map(t => `
+      <tr>
+        <td>${formatFecha(t.timestamp)}</td>
+        <td><code>${t.desde ?? '—'}</code> → <code>${t.hasta}</code></td>
+        <td>${t.actor?.nombre ?? t.actor ?? '—'}</td>
+        <td>${t.razon ?? ''}</td>
+      </tr>
+    `).join('');
+
+    document.getElementById('historial').innerHTML = hist
+      ? `<div class="ciid-tabla"><table><thead><tr><th>Fecha</th><th>Transición</th><th>Actor</th><th>Razón</th></tr></thead><tbody>${hist}</tbody></table></div>`
+      : '<p style="color:#888;">Sin transiciones registradas.</p>';
+  } catch (e) {
+    document.getElementById('detalle').innerHTML = `<span style="color:#C62828;">${e.message}</span>`;
+  }
+}
+
+async function accion(tipo) {
+  let razon = '';
+  if (tipo === 'devolver') {
+    razon = prompt('Razón para devolver el expediente a edición:');
+    if (!razon) return;
+  }
+  if (tipo === 'avanzar') {
+    razon = prompt('Nota de avance (opcional):') || 'Avance de etapa';
+  }
+
+  const btn = event.target;
+  btn.disabled = true;
+
+  try {
+    const r = await api.patch(`/api/v1/expedientes/${id}/${tipo}`, { razon });
+    mostrarAlerta(document.getElementById('alerta'), 'exito', `Acción "${tipo}" aplicada. Nueva etapa: ${r.etapaActual}`);
+    cargar();
+  } catch (e) {
+    mostrarAlerta(document.getElementById('alerta'), 'error', e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+cargar();
+</script>
+</body>
+</html>

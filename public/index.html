@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MONITOR CIID · Plataforma</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/ciid.css">
+</head>
+<body>
+
+<header class="ciid-header">
+  <a class="ciid-header__logo" href="/">
+    <div class="ciid-header__mark">CIID</div>
+    <div class="ciid-header__nombre">MONITOR CIID</div>
+  </a>
+  <nav class="ciid-header__nav">
+    <a href="/" class="activo">Inicio</a>
+    <a href="/bandeja.html">Bandeja</a>
+    <a href="/nuevo.html">Nuevo</a>
+    <a href="/metricas.html">Métricas</a>
+  </nav>
+</header>
+
+<main class="ciid-main">
+  <span class="ciid-badge ciid-badge--PUBLISHED">API v1.0 · PANEL v1.1</span>
+  <h1 class="ciid-titulo" style="margin-top:12px;">Plataforma CIID</h1>
+  <p class="ciid-subtitulo">Infraestructura tecnológica periodística para Monitor Noticias Oaxaca</p>
+
+  <div class="ciid-kpis" id="kpis">
+    <div class="ciid-kpi"><div class="ciid-kpi__valor">—</div><div class="ciid-kpi__label">Cargando…</div></div>
+  </div>
+
+  <div class="ciid-panel">
+    <div class="ciid-panel__titulo">Accesos rápidos</div>
+    <div class="ciid-flex ciid-flex--wrap">
+      <a href="/bandeja.html" class="ciid-btn ciid-btn--primario">Bandeja de expedientes</a>
+      <a href="/nuevo.html" class="ciid-btn ciid-btn--acento">Registrar nuevo</a>
+      <a href="/metricas.html" class="ciid-btn ciid-btn--neutro">Ver métricas</a>
+      <a href="/health" class="ciid-btn ciid-btn--neutro">Health API</a>
+    </div>
+  </div>
+
+  <div class="ciid-panel">
+    <div class="ciid-panel__titulo">Principio rector</div>
+    <p style="font-size:15px;color:var(--ciid-azul);font-weight:600;font-style:italic;">
+      "La tecnología asiste. El periodista decide."
+    </p>
+    <p style="margin-top:12px;color:#555;font-size:14px;">
+      Ninguna publicación se ejecuta sin decisión humana explícita.
+      Ninguna lengua originaria se traduce automáticamente:
+      se valida por hablantes nativos.
+    </p>
+  </div>
+</main>
+
+<footer class="ciid-footer">
+  MONITOR CIID · Innovar para informar · Digitalizar para preservar · Oaxaca · v1.1
+</footer>
+
+<script src="/js/api.js"></script>
+<script>
+(async () => {
+  try {
+    const r = await api.get('/api/v1/pipeline/resumen');
+    document.getElementById('kpis').innerHTML = `
+      <div class="ciid-kpi"><div class="ciid-kpi__valor">${r.total}</div><div class="ciid-kpi__label">Expedientes totales</div></div>
+      <div class="ciid-kpi"><div class="ciid-kpi__valor">${r.porEtapa.RECEIVED ?? 0}</div><div class="ciid-kpi__label">Por procesar</div></div>
+      <div class="ciid-kpi"><div class="ciid-kpi__valor">${r.porEtapa.DECISION ?? 0}</div><div class="ciid-kpi__label">En decisión</div></div>
+      <div class="ciid-kpi"><div class="ciid-kpi__valor">${r.porEtapa.PUBLISHED ?? 0}</div><div class="ciid-kpi__label">Publicados</div></div>
+    `;
+  } catch (e) {
+    document.getElementById('kpis').innerHTML = `<div class="ciid-alerta ciid-alerta--error">${e.message}</div>`;
+  }
+})();
+</script>
+</body>
+</html>

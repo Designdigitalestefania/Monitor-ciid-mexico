@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Métricas · MONITOR CIID</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/ciid.css">
+</head>
+<body>
+
+<header class="ciid-header">
+  <a class="ciid-header__logo" href="/">
+    <div class="ciid-header__mark">CIID</div>
+    <div class="ciid-header__nombre">MONITOR CIID</div>
+  </a>
+  <nav class="ciid-header__nav">
+    <a href="/">Inicio</a>
+    <a href="/bandeja.html">Bandeja</a>
+    <a href="/nuevo.html">Nuevo</a>
+    <a href="/metricas.html" class="activo">Métricas</a>
+  </nav>
+</header>
+
+<main class="ciid-main">
+  <h1 class="ciid-titulo">Métricas del ecosistema</h1>
+  <p class="ciid-subtitulo">Estado del pipeline editorial en tiempo real</p>
+
+  <div class="ciid-kpis" id="kpis">
+    <div class="ciid-loading">Cargando…</div>
+  </div>
+
+  <div class="ciid-panel">
+    <div class="ciid-panel__titulo">Distribución por etapa</div>
+    <div id="tabla"></div>
+  </div>
+</main>
+
+<footer class="ciid-footer">MONITOR CIID · v1.1</footer>
+
+<script src="/js/api.js"></script>
+<script>
+async function cargar() {
+  try {
+    const r = await api.get('/api/v1/pipeline/resumen');
+
+    document.getElementById('kpis').innerHTML = `
+      <div class="ciid-kpi"><div class="ciid-kpi__valor">${r.total}</div><div class="ciid-kpi__label">Total expedientes</div></div>
+      <div class="ciid-kpi"><div class="ciid-kpi__valor">${r.porEtapa.DECISION ?? 0}</div><div class="ciid-kpi__label">En decisión</div></div>
+      <div class="ciid-kpi"><div class="ciid-kpi__valor">${r.porEtapa.PUBLISHED ?? 0}</div><div class="ciid-kpi__label">Publicados</div></div>
+      <div class="ciid-kpi"><div class="ciid-kpi__valor">${r.porEtapa.PRESERVED ?? 0}</div><div class="ciid-kpi__label">Preservados</div></div>
+    `;
+
+    const filas = Object.entries(r.porEtapa).map(([etapa, n]) => `
+      <tr>
+        <td><span class="ciid-badge ciid-badge--${etapa}">${etapa}</span></td>
+        <td style="text-align:right;font-weight:600;">${n}</td>
+      </tr>
+    `).join('');
+
+    document.getElementById('tabla').innerHTML = `
+      <div class="ciid-tabla">
+        <table>
+          <thead><tr><th>Etapa</th><th style="text-align:right;">Expedientes</th></tr></thead>
+          <tbody>${filas}</tbody>
+        </table>
+      </div>
+    `;
+  } catch (e) {
+    document.getElementById('kpis').innerHTML = `<div class="ciid-alerta ciid-alerta--error">${e.message}</div>`;
+  }
+}
+
+cargar();
+setInterval(cargar, 10000);
+</script>
+</body>
+</html>
