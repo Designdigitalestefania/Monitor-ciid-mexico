@@ -23,11 +23,8 @@ export async function buildApp() {
   await app.register(cookie, { secret: 'secreto-super-seguro-cambiar' });
   await app.register(staticPlugin, { root: publicDir, prefix: '/' });
 
-  // Rutas Públicas (Login y Health)
   await app.register(authRoutes);
   await app.register(healthRoutes);
-
-  // Rutas Protegidas
   await app.register(tenantsRoutes);
   await app.register(expedientesRoutes);
   await app.register(pipelineRoutes);
