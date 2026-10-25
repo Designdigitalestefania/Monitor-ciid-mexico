@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login · MONITOR CIID</title>
+<link rel="stylesheet" href="/css/ciid.css">
+<style>
+  body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #F4F6F8; }
+  .login-box { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; border-top: 6px solid #0B2E59; }
+  h1 { color: #0B2E59; font-family: 'Montserrat', sans-serif; text-align: center; margin-bottom: 24px; }
+  input { width: 100%; padding: 12px; margin-bottom: 16px; border: 1px solid #D9DDE3; border-radius: 6px; }
+  button { width: 100%; padding: 12px; background: #0B2E59; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; }
+  button:hover { background: #00A5A8; }
+  .error { color: #C62828; text-align: center; margin-bottom: 16px; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="login-box">
+  <h1>MONITOR CIID</h1>
+  <p style="text-align: center; color: #666; margin-bottom: 24px; font-size: 14px;">Ingresa tus credenciales</p>
+  
+  <div id="error" class="error"></div>
+  
+  <input type="text" id="usuario" placeholder="Usuario">
+  <input type="password" id="password" placeholder="Contraseña">
+  <button onclick="login()">Entrar</button>
+</div>
+
+<script>
+async function login() {
+  const usuario = document.getElementById('usuario').value;
+  const password = document.getElementById('password').value;
+
+  try {
+    const res = await fetch('/api/v1/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario, password })
+    });
+
+    if (res.ok) {
+      window.location.href = '/';
+    } else {
+      const err = await res.json();
+      document.getElementById('error').textContent = err.error;
+    }
+  } catch (e) {
+    document.getElementById('error').textContent = 'Error de conexión';
+  }
+}
+</script>
+</body>
+</html>

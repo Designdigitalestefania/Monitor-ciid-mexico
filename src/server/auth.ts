@@ -1,19 +1,19 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
-import { config } from './config.js';
 
 export async function requireApiKey(req: FastifyRequest, reply: FastifyReply) {
-  const header = req.headers['x-api-key'];
-  const query = (req.query as Record<string, string> | undefined)?.apiKey;
-  const key = Array.isArray(header) ? header[0] : header ?? query;
-
-  // Claves permitidas: la de Railway + la de desarrollo por si acaso
-  const validKeys = [
-    config.apiKey,
-    'dev-key-cambiar-en-produccion',
-    'cambia-esta-clave-por-una-larga-y-aleatoria'
-  ];
-
-  if (!key || !validKeys.includes(key)) {
-    reply.code(401).send({ error: 'API key inválida o ausente' });
+  // Verificar si el usuario tiene la cookie de sesión
+  const session = req.cookies.ciid_session;
+  
+  if (session === 'token_valido') {
+    return; // Usuario logueado, puede pasar
   }
+
+  // Si es una petición de API (no del navegador), verificar la API Key
+  const key = req.headers['x-api-key'];
+  if (key === 'dev-key-cambiar-en-produccion') {
+    return; // API Key válida para pruebas
+  }
+
+  // Si no está logueado y no tiene API Key, bloquear
+  reply.code(401).send({ error: 'No autorizado. Inicia sesión.' });
 }
