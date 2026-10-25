@@ -3,7 +3,6 @@ import { PostgresRepository } from '../persistence/postgres.js';
 import type { Repository } from '../persistence/types.js';
 import type { Tenant } from '../domain/tenant.js';
 import type { Expediente } from '../domain/expediente.js';
-import { config } from './config.js';
 
 let tenantRepo: Repository<Tenant> | null = null;
 let expedienteRepo: Repository<Expediente> | null = null;

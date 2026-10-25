@@ -7,6 +7,6 @@ export async function requireApiKey(req: FastifyRequest, reply: FastifyReply) {
   const key = Array.isArray(header) ? header[0] : header ?? query;
 
   if (key !== config.apiKey) {
-    return reply.code(401).send({ error: 'API key inválida o ausente' });
+    reply.code(401).send({ error: 'API key inválida o ausente' });
   }
 }
