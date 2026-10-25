@@ -1,5 +1,5 @@
 // Cliente API CIID
-const CIID_KEY = 'dev-key-cambiar-en-produccion';
+const CIID_KEY = 'pega-aqui-la-clave-de-railway';
 
 const api = {
   async get(ruta) {
