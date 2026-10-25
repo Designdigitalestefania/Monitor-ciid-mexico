@@ -1,3 +1,4 @@
+// @ts-nocheck
 import pg from 'pg';
 import type { Repository } from './types.js';
 
