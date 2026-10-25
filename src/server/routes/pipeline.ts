@@ -9,7 +9,7 @@ export async function pipelineRoutes(app: FastifyInstance) {
 
   app.get<{ Querystring: { tenant?: string } }>('/api/v1/pipeline/resumen', { preHandler: requireApiKey }, async (req) => {
     const repo = await getExpedienteRepoAsync();
-    const todos = repo.listar();
+    const todos = await repo.listar();
     const filtrados = req.query?.tenant ? todos.filter((e: any) => e.tenantId === req.query.tenant) : todos;
     const porEtapa: Record<string, number> = {};
     for (const etapa of ETAPAS) porEtapa[etapa] = 0;
