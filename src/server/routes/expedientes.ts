@@ -9,13 +9,13 @@ import { PipelineService } from '../../modules/pipeline/service.js';
 
 export async function expedientesRoutes(app: FastifyInstance) {
   
-  // 1. LISTAR EXPEDIENTES (Para la bandeja)
+  // LISTAR EXPEDIENTES (Para la bandeja)
   app.get('/api/v1/expedientes', { preHandler: requireApiKey }, async () => {
     const expRepo = await getExpedienteRepoAsync();
-    return expRepo.listar();
+    return await expRepo.listar();
   });
 
-  // 2. OBTENER UN EXPEDIENTE (La ruta que faltaba)
+  // OBTENER UN EXPEDIENTE
   app.get('/api/v1/expedientes/:id', { preHandler: requireApiKey }, async (req, reply) => {
     const expRepo = await getExpedienteRepoAsync();
     const exp = await expRepo.obtener(req.params.id);
@@ -23,7 +23,7 @@ export async function expedientesRoutes(app: FastifyInstance) {
     return exp;
   });
 
-  // 3. CREAR EXPEDIENTE
+  // CREAR EXPEDIENTE
   app.post('/api/v1/expedientes', { preHandler: requireApiKey }, async (req, reply) => {
     const input = req.body;
     if (!input?.id || !input?.tenantId || !input?.origen || !input?.territorio) {
@@ -46,7 +46,7 @@ export async function expedientesRoutes(app: FastifyInstance) {
     return reply.code(201).send(resultado.expediente);
   });
 
-  // 4. AVANZAR ETAPA
+  // AVANZAR ETAPA
   app.patch('/api/v1/expedientes/:id/avanzar', { preHandler: requireApiKey }, async (req, reply) => {
     const expRepo = await getExpedienteRepoAsync();
     const exp = await expRepo.obtener(req.params.id);
@@ -60,7 +60,7 @@ export async function expedientesRoutes(app: FastifyInstance) {
     return res.expediente;
   });
 
-  // 5. APROBAR Y PUBLICAR
+  // APROBAR
   app.patch('/api/v1/expedientes/:id/aprobar', { preHandler: requireApiKey }, async (req, reply) => {
     const expRepo = await getExpedienteRepoAsync();
     const exp = await expRepo.obtener(req.params.id);
