@@ -9,30 +9,21 @@ export class PostgresRepository<T extends { id: string }> implements Repository<
 
   constructor(connectionString: string, tableName: string) {
     this.tableName = tableName;
-    this.pool = new Pool({
-      connectionString,
-      ssl: { rejectUnauthorized: false }
-    });
+    this.pool = new Pool({ connectionString, ssl: { rejectUnauthorized: false } });
   }
 
   async init(): Promise<void> {
-    await this.pool.query(`
-      CREATE TABLE IF NOT EXISTS ${this.tableName} (
-        id TEXT PRIMARY KEY,
-        data JSONB NOT NULL
-      );
-    `);
+    await this.pool.query(`CREATE TABLE IF NOT EXISTS ${this.tableName} (id TEXT PRIMARY KEY, data JSONB NOT NULL);`);
   }
 
   guardar(item: T): void {
     this.pool.query(
-      `INSERT INTO ${this.tableName} (id, data) VALUES ($1, $2)
-       ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data`,
+      `INSERT INTO ${this.tableName} (id, data) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data`,
       [item.id, JSON.stringify(item)]
     ).catch((err: any) => console.error('Error guardando:', err));
   }
 
-  // AHORA SÍ LEEMOS LOS DATOS
+  // AQUI ESTA LA MAGIA: Leer de verdad
   async obtener(id: string): Promise<T | null> {
     const res = await this.pool.query(`SELECT data FROM ${this.tableName} WHERE id = $1`, [id]);
     if (res.rows.length === 0) return null;
