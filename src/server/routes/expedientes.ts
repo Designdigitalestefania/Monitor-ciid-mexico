@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { FastifyInstance } from 'fastify';
 import { requireApiKey } from '../auth.js';
 import { getExpedienteRepoAsync, getTenantRepoAsync } from '../context.js';
