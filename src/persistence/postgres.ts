@@ -32,11 +32,33 @@ export class PostgresRepository<T extends { id: string }> implements Repository<
     ).catch((err: any) => console.error('Error guardando:', err));
   }
 
-  // Usamos _id para que TypeScript sepa que no lo usamos
-  obtener(_id: string): T | null { return null; }
-  listar(): T[] { return []; }
-  existe(_id: string): boolean { return false; }
-  contar(): number { return 0; }
-  eliminar(_id: string): boolean { return false; }
-  limpiar(): void {}
+  // AHORA SÍ LEEMOS LOS DATOS
+  async obtener(id: string): Promise<T | null> {
+    const res = await this.pool.query(`SELECT data FROM ${this.tableName} WHERE id = $1`, [id]);
+    if (res.rows.length === 0) return null;
+    return res.rows[0].data as T;
+  }
+
+  async listar(): Promise<T[]> {
+    const res = await this.pool.query(`SELECT data FROM ${this.tableName}`);
+    return res.rows.map((row: any) => row.data as T);
+  }
+
+  async existe(id: string): Promise<boolean> {
+    const res = await this.pool.query(`SELECT 1 FROM ${this.tableName} WHERE id = $1`, [id]);
+    return res.rows.length > 0;
+  }
+
+  async contar(): Promise<number> {
+    const res = await this.pool.query(`SELECT COUNT(*) FROM ${this.tableName}`);
+    return parseInt(res.rows[0].count, 10);
+  }
+
+  eliminar(id: string): void {
+    this.pool.query(`DELETE FROM ${this.tableName} WHERE id = $1`, [id]);
+  }
+
+  limpiar(): void {
+    this.pool.query(`DELETE FROM ${this.tableName}`);
+  }
 }
